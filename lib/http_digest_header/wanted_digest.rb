@@ -37,19 +37,18 @@ module HttpDigestHeader
     attr_reader :algorithm, :qvalue
 
     def initialize(algorithm, qvalue: nil)
-      @algorithm = Algorithm.wrap(algorithm)
-
-      @qvalue = qvalue || DEFAULT_QVALUE
-      @qvalue_specified = !qvalue.nil?
-
-      unless QVALUE_RANGE.include?(@qvalue)
+      if qvalue && !QVALUE_RANGE.cover?(qvalue)
         raise QvalueRangeError, "Invalid qvalue: #{qvalue} (must be between #{QVALUE_RANGE.min} and #{QVALUE_RANGE.max})"
       end
+
+      @algorithm = Algorithm.wrap(algorithm)
+      @qvalue = qvalue&.truncate(1) || DEFAULT_QVALUE
+      @qvalue_specified = !qvalue.nil?
     end
 
     def to_s
       if qvalue_specified?
-        "%s%sq=%s" % [algorithm.name, DELIMITER, qvalue.truncate(1)]
+        "%s%sq=%s" % [algorithm.name, DELIMITER, qvalue]
       else
         algorithm.name
       end

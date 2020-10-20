@@ -99,6 +99,10 @@ RSpec.describe HttpDigestHeader::WantedDigest do
         expect(instance.algorithm.name).to eq("sha-256")
       end
     end
+
+    it "truncates the qvalue" do
+      expect(described_class.new("sha-256", qvalue: 0.55).qvalue).to eq(0.5)
+    end
   end
 
   describe "#to_s" do
