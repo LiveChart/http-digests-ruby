@@ -15,6 +15,20 @@ RSpec.describe HttpDigestHeader::Digest do
       expect(instance.value).to eq(digest)
     end
 
+    [
+      nil,
+      1,
+      Hash.new
+    ].each do |invalid_digest|
+      context "provided '#{invalid_digest}' (#{invalid_digest.class}) as a digest" do
+        let(:digest_arg) { invalid_digest }
+
+        it "raises Digest::InvalidValueError" do
+          expect { instance }.to raise_error(HttpDigestHeader::Digest::InvalidValueError)
+        end
+      end
+    end
+
     context "provided an algorithm name string" do
       it "does not raise an error" do
         expect { instance }.not_to raise_error

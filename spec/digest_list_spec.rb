@@ -3,10 +3,16 @@
 RSpec.describe HttpDigestHeader::DigestList do
   let(:field_value) { "sha-256=4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo=,id-sha-256=X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE=" }
   let(:parsed) { described_class.parse(field_value) }
+  let(:base64_digest_string) { "4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo=" }
 
   describe ".parse" do
     it "returns the correct object type" do
       expect(parsed).to be_a described_class
+    end
+
+    it "correctly parses" do
+      expect(parsed["sha-256"]).to eq(HttpDigestHeader::Digest.new("sha-256", "4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo="))
+      expect(parsed["id-sha-256"]).to eq(HttpDigestHeader::Digest.new("id-sha-256", "X48E9qOokqqrvdts8nOJRJN3OWDUoyWxBf7kbu9DBPE="))
     end
 
     [
@@ -21,6 +27,26 @@ RSpec.describe HttpDigestHeader::DigestList do
           expect { parsed }.to raise_error
         end
       end
+    end
+  end
+
+  describe ".build" do
+    it "passes the build to the provided block" do
+      described_class.build do |argument|
+        expect(argument).to be_a(HttpDigestHeader::DigestList::Builder)
+      end
+    end
+
+    it "returns a DigestList" do
+      expect(described_class.build { |builder| builder.add("sha-256", base64_digest_string) }).to be_a(described_class)
+    end
+
+    it "correctly builds" do
+      result = described_class.build do |builder|
+        builder.add("sha-256", base64_digest_string)
+      end
+
+      expect(result["sha-256"]).to eq(HttpDigestHeader::Digest.new("sha-256", base64_digest_string))
     end
   end
 
@@ -45,11 +71,7 @@ RSpec.describe HttpDigestHeader::DigestList do
 
   describe "#[]" do
     it "correctly fetches an existant digest" do
-      expected = HttpDigestHeader::Digest.new(
-        "sha-256",
-        "4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo="
-      )
-
+      expected = HttpDigestHeader::Digest.new("sha-256", base64_digest_string)
       expect(parsed["sha-256"]).to eq(expected)
     end
 
@@ -58,30 +80,9 @@ RSpec.describe HttpDigestHeader::DigestList do
     end
   end
 
-  describe "#add" do
-    let(:list) { described_class.new }
-    let(:new_digest) do
-      HttpDigestHeader::Digest.new(
-        "sha-256",
-        "4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo="
-      )
-    end
-
-    it "correctly adds a Digest object" do
-      expect(list["sha-256"]).to eq(nil)
-      list.add(new_digest)
-      expect(list["sha-256"]).to eq(new_digest)
-    end
-
-    it "correctly adds digest provided an algorithm name and digest value" do
-      expect(list["sha-256"]).to eq(nil)
-      list.add("sha-256", "4REjxQ4yrqUVicfSKYNO/cF9zNj5ANbzgDZt3/h3Qxo=")
-      expect(list["sha-256"]).to eq(new_digest)
-    end
-
-    it "raises when adding a duplicate digest" do
-      list.add(new_digest)
-      expect { list.add(new_digest) }.to raise_error(HttpDigestHeader::Algorithm::DuplicateAlgorithmError)
+  %i[<< add remove].each do |method_name|
+    it "does not expose a #{method_name} method" do
+      expect(parsed).not_to respond_to(method_name)
     end
   end
 end

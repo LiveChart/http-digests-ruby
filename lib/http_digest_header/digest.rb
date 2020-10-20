@@ -4,6 +4,9 @@ module HttpDigestHeader
   class Digest
     KEY_VALUE_DELIMITER = "="
 
+    class Error < HttpDigestHeader::Error; end
+    class InvalidValueError < Error; end
+
     class << self
       def parse(value)
         algorithm_name, digest = value.split(KEY_VALUE_DELIMITER, 2)
@@ -16,6 +19,8 @@ module HttpDigestHeader
     def initialize(algorithm, value)
       @algorithm = Algorithm.wrap(algorithm)
       @value = value
+
+      raise InvalidValueError, "Invalid digest value, must be provided a string" unless value.is_a?(String)
 
       self.algorithm.assert_padded_base64_digest_length!(value)
     end
