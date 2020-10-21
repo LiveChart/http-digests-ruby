@@ -1,68 +1,38 @@
-# HTTP Signatures
+# HTTP Digest Header
 
-Ruby implementation of [HTTP Signatures][draft03] draft specification;
-cryptographically sign and verify HTTP requests and responses.
+Ruby implementation of [Digest Headers][draft03] draft specification; allows
+clients and servers to negotiate an integrity checksum of the exchanged resource
+representation data.
 
-See also:
+### Features
 
-* https://github.com/99designs/http-signatures-php
+* Verify digests from a `Digest` header containing one or more digests computed with different algorithms,
+optionally preferring specific algorithms.
 
-
-## Usage
-
-Add [`http_signatures`][gem] to your `Gemfile`.
-
-Configure a context with your algorithm, keys, headers to sign. In Rails,
-this is best placed in an initializer.
-
-```rb
-require "http_signatures"
-
-$context = HttpSignatures::Context.new(
-  key_store: {"examplekey" => "secret-key-here"},
-  algorithm: "hmac-sha256",
-  headers: ["(request-target)", "Date", "Content-Length"],
-)
-```
-
-If there's only one key in the `keys` hash, that will be used for signing.
-Otherwise, specify one via `signing_key_id: "examplekey"`.
-
-### Messages
-
-A message is an HTTP request or response. A subset of the interface of
-Ruby's Net::HTTPRequest and Net::HTTPResponse is expected; the ability to
-set/read headers via `message["name"]`, and for requests, the presence
-of `message#method` and `message#path` for `(request-target)` support.
-
-```rb
-require "net/http"
-require "time"
-
-message = Net::HTTP::Get.new(
-  "/path?query=123",
-  "Date" => Time.now.rfc822,
-  "Content-Length" => "0",
-)
-```
-
-### Signing a message
-
-```rb
-$context.signer.sign(message)
-```
-
-Now `message` contains the signature headers:
-
-```rb
-message["Signature"]
-# keyId="examplekey",algorithm="hmac-sha256",headers="...",signature="..."
-```
+* Generate `Want-Digest` header values with optional `q` values.
 
 ### Verifying a signed message
 
 ```rb
-$context.verifier.valid?(message)  # => true or false
+wanted_digests = HttpDigestHeader::WantedDigestList.build do |builder|
+  builder.add("sha-256", 1)
+end
+
+verifier = HttpDigestHeader::Verifier.new(wanted_digests)
+
+# Digest string: "sha-256=[base64digest],sha-512=[base64digest]"
+verifier.verify!(digest_string, actual_content)
+```
+
+### Generate a `Want-Digest` header value
+
+```rb
+wanted_digests = HttpDigestHeader::WantedDigestList.build do |builder|
+  builder.add("sha-512")
+  builder.add("sha-256", 0.5)
+end
+
+wanted_digests.to_s # sha-512, sha-256;q=0.5
 ```
 
 
@@ -71,5 +41,4 @@ $context.verifier.valid?(message)  # => true or false
 Pull Requests are welcome.
 
 
-[draft03]: http://tools.ietf.org/html/draft-cavage-http-signatures-03
-[gem]: http://rubygems.org/gems/http_signatures
+[draft03]: https://tools.ietf.org/html/draft-ietf-httpbis-digest-headers-03
