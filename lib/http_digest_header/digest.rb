@@ -2,14 +2,14 @@
 
 module HttpDigestHeader
   class Digest
-    KEY_VALUE_DELIMITER = "="
+    KEY_VALUE_SEPARATOR = "="
 
     class Error < HttpDigestHeader::Error; end
     class InvalidValueError < Error; end
 
     class << self
       def parse(value)
-        algorithm_name, digest = value.split(KEY_VALUE_DELIMITER, 2)
+        algorithm_name, digest = value.split(KEY_VALUE_SEPARATOR, 2)
         new(algorithm_name, digest)
       end
     end
@@ -26,7 +26,7 @@ module HttpDigestHeader
     end
 
     def to_s
-      "#{algorithm.name}#{KEY_VALUE_DELIMITER}#{value}"
+      "#{algorithm.name}#{KEY_VALUE_SEPARATOR}#{value}"
     end
 
     def same_content?(other_value)

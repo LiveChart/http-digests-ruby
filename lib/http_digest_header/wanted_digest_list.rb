@@ -2,12 +2,12 @@
 
 module HttpDigestHeader
   class WantedDigestList
-    LIST_DELIMITER = ", "
+    LIST_SEPARATOR = ", "
 
     class << self
       def parse(string)
         build do |builder|
-          string.split(LIST_DELIMITER).each { |item| builder.add(item) }
+          string.split(LIST_SEPARATOR).each { |item| builder.add(item) }
         end
       end
 
@@ -23,7 +23,7 @@ module HttpDigestHeader
     end
 
     def to_s
-      @value_map.values.map(&:to_s).join(LIST_DELIMITER)
+      @value_map.values.map(&:to_s).join(LIST_SEPARATOR)
     end
 
     def [](algorithm)

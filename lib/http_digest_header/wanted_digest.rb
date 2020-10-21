@@ -4,8 +4,8 @@ module HttpDigestHeader
   class WantedDigest
     include ::Comparable
 
-    DELIMITER = ";"
-    QVALUE_DELIMITER = "="
+    SEPARATOR = ";"
+    QVALUE_SEPARATOR = "="
     MIN_QVALUE = 0.0
     MAX_QVALUE = 1.0
     DEFAULT_QVALUE = MAX_QVALUE
@@ -19,7 +19,7 @@ module HttpDigestHeader
 
     class << self
       def parse(value)
-        algorithm_name, raw_qvalue = value.split(DELIMITER, 2)
+        algorithm_name, raw_qvalue = value.split(SEPARATOR, 2)
         qvalue = nil
 
         if raw_qvalue
@@ -27,7 +27,7 @@ module HttpDigestHeader
             raise ParseError, "Invalid qvalue: #{raw_qvalue}"
           end
 
-          qvalue = raw_qvalue.split(QVALUE_DELIMITER, 2).last.to_f
+          qvalue = raw_qvalue.split(QVALUE_SEPARATOR, 2).last.to_f
         end
 
         new(algorithm_name, qvalue: qvalue)
@@ -48,7 +48,7 @@ module HttpDigestHeader
 
     def to_s
       if qvalue_specified?
-        "%s%sq=%s" % [algorithm.name, DELIMITER, qvalue]
+        "%s%sq=%s" % [algorithm.name, SEPARATOR, qvalue]
       else
         algorithm.name
       end
