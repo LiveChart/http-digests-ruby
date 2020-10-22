@@ -1,6 +1,6 @@
 # HTTP Digest Header
 
-Ruby implementation of [Digest Headers][draft03] draft specification; allows
+Ruby implementation of [Digest Headers][draft04] draft specification; allows
 clients and servers to negotiate an integrity checksum of the exchanged resource
 representation data.
 
@@ -41,4 +41,4 @@ wanted_digests.to_s # sha-512, sha-256;q=0.5
 Pull Requests are welcome.
 
 
-[draft03]: https://tools.ietf.org/html/draft-ietf-httpbis-digest-headers-03
+[draft04]: https://tools.ietf.org/html/draft-ietf-httpbis-digest-headers-04
