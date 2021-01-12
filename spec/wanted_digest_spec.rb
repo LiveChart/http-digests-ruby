@@ -120,13 +120,13 @@ RSpec.describe HttpDigestHeader::WantedDigest do
 
   describe "equality" do
     [
-      ["sha-256", qvalue: 1],
-      ["sha-256", qvalue: nil],
-      ["sha-256", qvalue: 0.5],
+      [["sha-256"], { qvalue: 1 }],
+      [["sha-256"], { qvalue: nil }],
+      [["sha-256"], { qvalue: 0.5 }],
     ].each do |args|
       it "is equal to a different instance with the same attributes (#{args})" do
-        a = described_class.new(*args)
-        b = described_class.new(*args)
+        a = described_class.new(*args[0], **args[1])
+        b = described_class.new(*args[0], **args[1])
         expect(a).not_to equal(b)
         expect(a).to eq(b)
       end
