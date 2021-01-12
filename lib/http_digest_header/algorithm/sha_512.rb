@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "digest"
+
 module HttpDigestHeader
   module Algorithm
     class Sha512 < Base
