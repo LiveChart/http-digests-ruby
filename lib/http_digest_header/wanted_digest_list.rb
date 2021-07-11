@@ -22,8 +22,12 @@ module HttpDigestHeader
       @value_map = value_map
     end
 
+    def to_a
+      @value_map.values
+    end
+
     def to_s
-      @value_map.values.map(&:to_s).join(LIST_SEPARATOR)
+      to_a.map(&:to_s).join(LIST_SEPARATOR)
     end
 
     def [](algorithm)

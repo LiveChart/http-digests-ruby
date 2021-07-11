@@ -72,6 +72,15 @@ RSpec.describe HttpDigestHeader::WantedDigestList do
     end
   end
 
+  describe "#to_a" do
+    it "returns the correct value" do
+      expect(parsed.to_a).to contain_exactly(
+        HttpDigestHeader::WantedDigest.new("sha-512", qvalue: 0.3),
+        HttpDigestHeader::WantedDigest.new("sha-256", qvalue: 1)
+      )
+    end
+  end
+
   describe "#to_s" do
     it "returns the correct value" do
       expect(parsed.to_s).to eq("sha-512;q=0.3, sha-256;q=1.0")
