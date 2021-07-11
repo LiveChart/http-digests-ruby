@@ -18,6 +18,10 @@ RSpec.describe HttpDigestHeader::Algorithm do
         it "has #name == '#{name}'" do
           expect(algorithm.name).to eq(name)
         end
+
+        it "has #to_s == '#{name}'" do
+          expect(algorithm.to_s).to eq(name)
+        end
       end
     end
 

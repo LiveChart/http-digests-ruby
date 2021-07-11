@@ -9,6 +9,8 @@ module HttpDigestHeader
       class_attribute :digest_class, instance_writer: false, instance_predicate: false
       class_attribute :digest_length, instance_writer: false, instance_predicate: false
 
+      alias_method :to_s, :name
+
       def_delegator :digest_class, :base64digest
 
       class << self
